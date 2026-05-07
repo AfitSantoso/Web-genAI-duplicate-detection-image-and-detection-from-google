@@ -1,0 +1,81 @@
+<div class="container page-wrapper">
+  @if (facade.isLoading() && !facade.fraudResult()) {
+    <div class="loading-overlay"><span class="spinner spinner--lg"></span><p>Memuat hasil analisis...</p></div>
+  } @else if (facade.fraudResult(); as data) {
+    <div class="fraud-header animate-fade-in-up">
+      <h1>🔍 Detail Fraud - {{ data.customer.name }}</h1>
+      <p class="text-muted">{{ data.customer.no_contract }} | CMO: {{ data.customer.cmo_name }} ({{ data.customer.cmo_nip }})</p>
+    </div>
+
+    <div class="conclusion-banner animate-fade-in-up" [class.fiktif]="data.fridays_score.conclusion === 'FIKTIF'" [class.asli]="data.fridays_score.conclusion === 'ASLI'">
+      <div class="conclusion-banner__icon">{{ data.fridays_score.conclusion === 'FIKTIF' ? '❌' : '✅' }}</div>
+      <div class="conclusion-banner__content">
+        <h2>{{ data.fridays_score.conclusion }}</h2>
+        <p>{{ data.fridays_score.conclusion_summary }}</p>
+      </div>
+      <div class="conclusion-banner__score">
+        <span class="score-value">{{ data.fridays_score.score_percentage | number:'1.1-1' }}%</span>
+        <span class="score-label">Fraud Score</span>
+      </div>
+    </div>
+
+    <div class="grid grid--3 animate-fade-in-up" style="margin: 24px 0;">
+      <div class="stat-card">
+        <div class="stat-card__value" [style.color]="getRiskColor(getRiskLevelString(data.fridays_score.risk_level))">{{ data.fridays_score.decision }}</div>
+        <div class="stat-card__label">Keputusan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value">{{ data.fridays_score.total_flagged }}</div>
+        <div class="stat-card__label">Dokumen Flagged</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value" [style.color]="getRiskColor(getRiskLevelString(data.fridays_score.risk_level))">{{ getRiskLevelString(data.fridays_score.risk_level) }}</div>
+        <div class="stat-card__label">Risk Level</div>
+      </div>
+    </div>
+
+    @if (data.fridays_score.conclusion_detail; as cd) {
+      <div class="card animate-fade-in-up" style="margin-bottom: 24px;">
+        <div class="card__header"><h2 class="card__title">📋 Detail Kesimpulan</h2></div>
+        <div class="card__body">
+          <p style="margin-bottom: 16px;">{{ cd.explanation }}</p>
+          <div class="grid grid--2">
+            <div><h4 style="color: var(--color-danger); margin-bottom: 8px;">❌ Fiktif ({{ cd.total_fiktif }})</h4>
+              @for (doc of cd.fiktif_documents; track doc) { <span class="badge badge--danger" style="margin: 2px;">{{ doc }}</span> }
+              @if (cd.fiktif_documents.length === 0) { <span class="text-muted">Tidak ada</span> }
+            </div>
+            <div><h4 style="color: var(--color-success); margin-bottom: 8px;">✅ Asli ({{ cd.total_asli }})</h4>
+              @for (doc of cd.asli_documents; track doc) { <span class="badge badge--success" style="margin: 2px;">{{ doc }}</span> }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="card animate-fade-in-up">
+      <div class="card__header"><h2 class="card__title">🧬 Breakdown Per Dokumen</h2></div>
+      <div class="card__body" style="padding: 0;">
+        @for (item of data.breakdown; track item.component) {
+          <div class="breakdown-item">
+            <div class="breakdown-item__header">
+              <div class="breakdown-item__title">
+                <span class="badge" [class.badge--info]="item.category === 'DOCUMENT'" [class.badge--warning]="item.category === 'PROOF'">{{ item.category }}</span>
+                <strong>{{ item.component }}</strong>
+              </div>
+              <div class="breakdown-item__sim">
+                <span [style.color]="item.similarity_percentage > 50 ? 'var(--color-danger)' : 'var(--color-success)'" style="font-size: 1.3rem; font-weight: 800;">{{ item.similarity_percentage | number:'1.1-1' }}%</span>
+              </div>
+            </div>
+            <div class="progress-bar" [class.progress-bar--danger]="item.similarity_percentage > 50" [class.progress-bar--success]="item.similarity_percentage <= 50" style="margin: 10px 0;">
+              <div class="progress-bar__fill" [style.width.%]="item.similarity_percentage"></div>
+            </div>
+            @if (item.comparison_summary) { <p class="breakdown-summary">💡 {{ item.comparison_summary }}</p> }
+            @if (item.note) { <p class="breakdown-note">{{ item.note }}</p> }
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="empty-state"><div class="empty-state__icon">📭</div><h3 class="empty-state__title">Data tidak ditemukan</h3></div>
+  }
+</div>

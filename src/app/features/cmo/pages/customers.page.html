@@ -1,0 +1,68 @@
+<div class="container page-wrapper">
+  <div class="page-header animate-fade-in-up">
+    <h1>👥 Daftar Customer</h1>
+    <button class="btn btn--primary" (click)="showCreateModal.set(true)">+ Tambah Customer</button>
+  </div>
+
+  @if (facade.isLoading()) {
+    <div class="loading-overlay"><span class="spinner spinner--lg"></span><p>Memuat data...</p></div>
+  } @else if (facade.customers().length === 0) {
+    <div class="card">
+      <div class="empty-state">
+        <div class="empty-state__icon">📭</div>
+        <h3 class="empty-state__title">Belum ada customer</h3>
+        <p class="empty-state__desc">Buat customer baru untuk memulai.</p>
+        <button class="btn btn--primary" style="margin-top: 16px" (click)="showCreateModal.set(true)">+ Buat Customer Baru</button>
+      </div>
+    </div>
+  } @else {
+    <div class="card animate-fade-in-up">
+      <div class="card__body" style="padding: 0">
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>No. Kontrak</th><th>Nama</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody>
+            @for (c of facade.customers(); track c.id) {
+              <tr>
+                <td>{{ c.id }}</td>
+                <td><code>{{ c.no_contract }}</code></td>
+                <td><strong>{{ c.name }}</strong></td>
+                <td>
+                  @switch (c.fraud_status) {
+                    @case ('FLAGGED') { <span class="badge badge--danger">🚩 Flagged</span> }
+                    @case ('CONFIRMED_FRAUD') { <span class="badge badge--danger">❌ Fraud</span> }
+                    @case ('CLEAN') { <span class="badge badge--success">✅ Clean</span> }
+                    @default { <span class="badge badge--neutral">⏳ Pending</span> }
+                  }
+                </td>
+                <td>
+                  <a routerLink="/cmo/upload" [queryParams]="{customerId: c.id, customerName: c.name}" class="btn btn--primary btn--sm">📤 Upload</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  @if (showCreateModal()) {
+    <div class="modal-overlay animate-fade-in" (click)="showCreateModal.set(false)">
+      <div class="modal animate-fade-in-up" (click)="$event.stopPropagation()">
+        <div class="modal__header">
+          <h2>Tambah Customer Baru</h2>
+          <button class="btn btn--ghost btn--icon" (click)="showCreateModal.set(false)">✕</button>
+        </div>
+        <form (ngSubmit)="onCreate()" class="modal__body">
+          <div class="form-group">
+            <label for="customerName">Nama Customer</label>
+            <input id="customerName" class="form-control" type="text" [(ngModel)]="newCustomerName" name="customerName" placeholder="Contoh: Bapak Anto" required />
+          </div>
+          <div class="modal__actions">
+            <button type="button" class="btn btn--secondary" (click)="showCreateModal.set(false)">Batal</button>
+            <button type="submit" class="btn btn--primary" [disabled]="!newCustomerName || facade.isLoading()">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

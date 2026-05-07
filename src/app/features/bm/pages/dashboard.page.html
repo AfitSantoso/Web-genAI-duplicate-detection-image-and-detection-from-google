@@ -1,0 +1,93 @@
+<div class="container page-wrapper">
+  <div class="page-header animate-fade-in-up">
+    <h1>📊 Dashboard Branch Manager</h1>
+    <p class="page-subtitle">Monitoring fraud detection & review customer</p>
+  </div>
+
+  @if (facade.isLoading() && !facade.dashboard()) {
+    <div class="loading-overlay"><span class="spinner spinner--lg"></span><p>Memuat dashboard...</p></div>
+  } @else if (facade.dashboard(); as dash) {
+    <div class="grid grid--4 animate-fade-in-up" style="margin-bottom: 32px;">
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: var(--color-primary-50);">👥</div>
+        <div class="stat-card__value">{{ dash.overview.total_customers }}</div>
+        <div class="stat-card__label">Total Customer</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: var(--color-warning-light);">🚩</div>
+        <div class="stat-card__value">{{ dash.overview.flagged_customers }}</div>
+        <div class="stat-card__label">Flagged</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: var(--color-danger-light);">❌</div>
+        <div class="stat-card__value">{{ dash.overview.confirmed_fraud }}</div>
+        <div class="stat-card__label">Confirmed Fraud</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: var(--color-info-light);">👔</div>
+        <div class="stat-card__value">{{ dash.overview.total_cmo }}</div>
+        <div class="stat-card__label">Total CMO</div>
+      </div>
+    </div>
+
+    <!-- CMO Summary Table -->
+    @if (dash.cmo_fraud_summary && dash.cmo_fraud_summary.length > 0) {
+      <div class="card animate-fade-in-up">
+        <div class="card__header">
+          <h2 class="card__title">👔 Ringkasan CMO</h2>
+          <a routerLink="/bm/cmo-list" class="btn btn--secondary btn--sm">Lihat Semua</a>
+        </div>
+        <div class="card__body" style="padding:0; overflow-x: auto;">
+          <table class="data-table">
+            <thead><tr><th>CMO</th><th>NIP</th><th>Area</th><th>Customer</th><th>Flagged</th><th>Fraud</th><th>Aksi</th></tr></thead>
+            <tbody>
+              @for (cmo of dash.cmo_fraud_summary; track cmo.cmo_id) {
+                <tr>
+                  <td><strong>{{ cmo.cmo_name }}</strong></td>
+                  <td><code>{{ cmo.nip }}</code></td>
+                  <td>{{ cmo.area }}</td>
+                  <td>{{ cmo.total_customers }}</td>
+                  <td>
+                    @if (cmo.flagged_count > 0) { <span class="badge badge--warning">{{ cmo.flagged_count }}</span> }
+                    @else { <span class="badge badge--success">0</span> }
+                  </td>
+                  <td>
+                    @if (cmo.confirmed_fraud_count > 0) { <span class="badge badge--danger">{{ cmo.confirmed_fraud_count }}</span> }
+                    @else { <span class="badge badge--success">0</span> }
+                  </td>
+                  <td><a routerLink="/bm/cmo-list" class="btn btn--ghost btn--sm">Detail →</a></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- Flagged Customers -->
+    @if (facade.flaggedCustomers().length > 0) {
+      <div class="card animate-fade-in-up" style="margin-top: 24px;">
+        <div class="card__header">
+          <h2 class="card__title">🚩 Customer Flagged</h2>
+          <a routerLink="/bm/flagged" class="btn btn--secondary btn--sm">Lihat Semua</a>
+        </div>
+        <div class="card__body" style="padding:0;">
+          <table class="data-table">
+            <thead><tr><th>No Kontrak</th><th>Nama</th><th>CMO</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody>
+              @for (c of facade.flaggedCustomers().slice(0,5); track c.id) {
+                <tr>
+                  <td><code>{{ c.no_contract }}</code></td>
+                  <td><strong>{{ c.name }}</strong></td>
+                  <td>{{ c.cmo_name }} ({{ c.cmo_nip }})</td>
+                  <td><span class="badge badge--danger">{{ c.fraud_status }}</span></td>
+                  <td><a [routerLink]="['/bm/fraud-result', c.id]" class="btn btn--primary btn--sm">🔍 Detail</a></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  }
+</div>

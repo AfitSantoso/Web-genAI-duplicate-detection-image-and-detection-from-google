@@ -1,13 +1,13 @@
 <div class="container page-wrapper">
   <div class="page-header animate-fade-in-up">
     <div>
-      <h1>📤 Upload Dokumen</h1>
+      <h1>Upload Dokumen</h1>
       <p class="page-subtitle">Upload dokumen customer untuk verifikasi fraud detection</p>
     </div>
   </div>
 
   <!-- Customer Selection -->
-  <div class="card animate-fade-in-up" style="margin-bottom: 24px;">
+  <div class="card animate-fade-in-up" style="margin-bottom: 20px;">
     <div class="card__body">
       <div class="customer-select">
         <label>Pilih Customer:</label>
@@ -21,7 +21,7 @@
           </div>
         } @else {
           <button class="btn btn--secondary btn--full" (click)="showCustomerSelect.set(true)">
-            👥 Pilih Customer
+            Pilih Customer
           </button>
         }
       </div>
@@ -30,14 +30,14 @@
 
   @if (selectedCustomerId()) {
     <!-- Upload Mode Tabs -->
-    <div class="mode-tabs animate-fade-in-up" style="margin-bottom: 24px;">
+    <div class="mode-tabs animate-fade-in-up" style="margin-bottom: 20px;">
       <button class="mode-tab" [class.active]="uploadMode() === 'all'" (click)="uploadMode.set('all')">
-        📋 Upload Per-Tipe
+        Upload Per-Tipe
         <span class="mode-tab__desc">Pilih file per jenis dokumen</span>
       </button>
       <button class="mode-tab" [class.active]="uploadMode() === 'bulk'" (click)="uploadMode.set('bulk')">
-        🚀 Bulk Upload (AI)
-        <span class="mode-tab__desc">Upload banyak file, AI klasifikasi otomatis</span>
+        Bulk Upload
+        <span class="mode-tab__desc">Upload banyak file, klasifikasi otomatis</span>
       </button>
     </div>
 
@@ -47,7 +47,6 @@
         @for (doc of docTypes; track doc.key) {
           <div class="upload-slot" [class.has-file]="allFiles()[doc.key]">
             <div class="upload-slot__header">
-              <span class="upload-slot__icon">{{ doc.icon }}</span>
               <div>
                 <strong>{{ doc.label }}</strong>
                 <small>{{ doc.desc }}</small>
@@ -55,13 +54,13 @@
             </div>
             @if (allFiles()[doc.key]; as file) {
               <div class="upload-slot__file">
-                <span class="upload-slot__filename">📎 {{ file.name }}</span>
+                <span class="upload-slot__filename">{{ file.name }}</span>
                 <span class="upload-slot__size">{{ formatSize(file.size) }}</span>
-                <button class="upload-slot__remove" (click)="removeFile(doc.key)">✕</button>
+                <button class="upload-slot__remove" (click)="removeFile(doc.key)">&times;</button>
               </div>
             } @else {
               <label class="upload-slot__dropzone" [for]="'file_' + doc.key">
-                <span>📁 Pilih file atau drag & drop</span>
+                <span>Pilih file</span>
                 <input [id]="'file_' + doc.key" type="file" accept="image/*" (change)="onFileSelected(doc.key, $event)" hidden />
               </label>
             }
@@ -71,7 +70,7 @@
 
       <div class="upload-actions animate-fade-in-up">
         <button class="btn btn--primary btn--lg" [disabled]="!hasAnyFile || facade.isLoading()" (click)="onUploadAll()">
-          @if (facade.isLoading()) { <span class="spinner spinner--sm"></span> Mengupload... } @else { 🚀 Upload Semua Dokumen }
+          @if (facade.isLoading()) { <span class="spinner spinner--sm"></span> Mengupload... } @else { Upload Semua Dokumen }
         </button>
       </div>
     } @else {
@@ -80,11 +79,10 @@
         <div class="card__body">
           <div class="bulk-dropzone" [class.dragover]="isDragOver()" (dragover)="onDragOver($event)" (dragleave)="onDragLeave()" (drop)="onDrop($event)">
             <div class="bulk-dropzone__content">
-              <span class="bulk-dropzone__icon">📂</span>
               <h3>Drag & Drop file di sini</h3>
               <p>atau klik untuk memilih file (max 20 file, JPG/PNG/BMP)</p>
               <label class="btn btn--secondary" style="margin-top: 12px;">
-                📁 Pilih File
+                Pilih File
                 <input type="file" accept="image/*" multiple (change)="onBulkFilesSelected($event)" hidden />
               </label>
             </div>
@@ -92,12 +90,12 @@
 
           @if (bulkFiles().length > 0) {
             <div class="bulk-file-list">
-              <h4>📎 {{ bulkFiles().length }} file dipilih</h4>
+              <h4>{{ bulkFiles().length }} file dipilih</h4>
               @for (file of bulkFiles(); track $index) {
                 <div class="bulk-file-item">
                   <span>{{ file.name }}</span>
                   <span class="bulk-file-size">{{ formatSize(file.size) }}</span>
-                  <button class="upload-slot__remove" (click)="removeBulkFile($index)">✕</button>
+                  <button class="upload-slot__remove" (click)="removeBulkFile($index)">&times;</button>
                 </div>
               }
             </div>
@@ -105,7 +103,7 @@
         </div>
         <div class="card__footer">
           <button class="btn btn--primary btn--lg btn--full" [disabled]="bulkFiles().length === 0 || facade.isLoading()" (click)="onUploadBulk()">
-            @if (facade.isLoading()) { <span class="spinner spinner--sm"></span> AI Memproses... } @else { 🤖 Upload & Klasifikasi Otomatis }
+            @if (facade.isLoading()) { <span class="spinner spinner--sm"></span> Memproses... } @else { Upload & Klasifikasi Otomatis }
           </button>
         </div>
       </div>
@@ -113,17 +111,17 @@
 
     <!-- Progress -->
     @if (facade.isLoading()) {
-      <div class="card animate-fade-in" style="margin-top: 24px;">
+      <div class="card animate-fade-in" style="margin-top: 20px;">
         <div class="card__body">
           <div class="upload-progress">
             <div class="upload-progress__header">
-              <span>⏳ Mengupload & memproses dokumen...</span>
+              <span>Mengupload & memproses dokumen...</span>
               <strong>{{ facade.uploadProgress() }}%</strong>
             </div>
             <div class="progress-bar">
               <div class="progress-bar__fill" [style.width.%]="facade.uploadProgress()"></div>
             </div>
-            <p class="upload-progress__note">AI sedang menganalisis dokumen. Harap tunggu, proses ini bisa memakan waktu 5-30 detik.</p>
+            <p class="upload-progress__note">Proses analisis dokumen bisa memakan waktu 5-30 detik.</p>
           </div>
         </div>
       </div>
@@ -131,8 +129,8 @@
 
     <!-- Upload All Result -->
     @if (facade.uploadResult(); as result) {
-      <div class="card animate-fade-in-up" style="margin-top: 24px;">
-        <div class="card__header"><h2 class="card__title">✅ Hasil Upload</h2></div>
+      <div class="card animate-fade-in-up" style="margin-top: 20px;">
+        <div class="card__header"><h2 class="card__title">Hasil Upload</h2></div>
         <div class="card__body">
           <div class="result-summary">
             <span class="badge badge--success">{{ result.summary.total_uploaded }} berhasil</span>
@@ -160,8 +158,8 @@
 
     <!-- Bulk Result -->
     @if (facade.bulkResult(); as result) {
-      <div class="card animate-fade-in-up" style="margin-top: 24px;">
-        <div class="card__header"><h2 class="card__title">🤖 Hasil Bulk Upload (Auto-Classification)</h2></div>
+      <div class="card animate-fade-in-up" style="margin-top: 20px;">
+        <div class="card__header"><h2 class="card__title">Hasil Bulk Upload</h2></div>
         <div class="card__body">
           <div class="result-summary">
             <span class="badge badge--success">{{ result.classification_summary.classified_count }} terklasifikasi</span>
@@ -169,7 +167,7 @@
             <span class="badge badge--info">{{ result.classification_summary.classification_time_ms | number:'1.0-0' }}ms</span>
           </div>
           @if (result.classification_summary.types_found.length) {
-            <p style="margin: 12px 0; color: var(--color-text-secondary);">Tipe terdeteksi: <strong>{{ result.classification_summary.types_found.join(', ') }}</strong></p>
+            <p style="margin: 10px 0; color: var(--color-text-secondary); font-size: 0.85rem;">Tipe terdeteksi: <strong>{{ result.classification_summary.types_found.join(', ') }}</strong></p>
           }
           <div class="result-grid">
             @for (entry of result.documents | keyvalue; track entry.key) {
@@ -182,7 +180,7 @@
             }
           </div>
           @if (result.skipped_files.length > 0) {
-            <h4 style="margin-top: 20px;">⏭️ File yang Dilewati</h4>
+            <h4 style="margin-top: 16px; font-size: 0.9rem;">File yang Dilewati</h4>
             @for (skip of result.skipped_files; track skip.filename) {
               <div class="result-item result-item--muted">
                 <strong>{{ skip.filename }}</strong>
@@ -202,14 +200,14 @@
       <div class="modal animate-fade-in-up" (click)="$event.stopPropagation()">
         <div class="modal__header">
           <h2>Pilih Customer</h2>
-          <button class="btn btn--ghost btn--icon" (click)="showCustomerSelect.set(false)">✕</button>
+          <button class="btn btn--ghost btn--icon" (click)="showCustomerSelect.set(false)">&times;</button>
         </div>
         <div class="modal__body" style="max-height: 400px; overflow-y: auto;">
           @for (c of facade.customers(); track c.id) {
             <div class="customer-option" (click)="selectCustomer(c.id, c.name)">
               <div><strong>{{ c.name }}</strong><br><small>{{ c.no_contract }}</small></div>
-              @if (c.fraud_status === 'FLAGGED') { <span class="badge badge--danger">🚩</span> }
-              @else if (c.fraud_status === 'CLEAN') { <span class="badge badge--success">✅</span> }
+              @if (c.fraud_status === 'FLAGGED') { <span class="badge badge--danger">Flagged</span> }
+              @else if (c.fraud_status === 'CLEAN') { <span class="badge badge--success">Clean</span> }
             </div>
           }
           @if (facade.customers().length === 0) {

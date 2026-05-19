@@ -26,6 +26,7 @@
     "@angular/cli": "^21.2.10",
     "@angular/compiler-cli": "^21.2.0",
     "esbuild": "^0.27.3",
+    "esbuild-wasm": "^0.27.3",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2"
   }

@@ -90,4 +90,26 @@ export class AuditFacade {
       },
     });
   }
+
+  exportReport(): void {
+    this._isLoading.set(true);
+    this.auditApi.exportExcel().subscribe({
+      next: (blob) => {
+        this._isLoading.set(false);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Detail_Fraud_Report_${new Date().getTime()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.notify.success('Berhasil', 'Report detail berhasil di-export ke Excel (.xlsx)');
+      },
+      error: () => {
+        this._isLoading.set(false);
+        this.notify.error('Error', 'Gagal mengambil data export');
+      }
+    });
+  }
 }

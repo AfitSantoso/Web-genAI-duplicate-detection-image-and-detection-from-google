@@ -1,32 +1,33 @@
 <div class="container page-wrapper">
-  <div class="page-header animate-fade-in-up">
-    <h1>🔍 Dashboard Internal Audit</h1>
-    @if (facade.dashboard(); as d) {
-      <p class="page-subtitle">Logged in as <strong>{{ d.audit_user.name }}</strong> ({{ d.audit_user.nip }})</p>
-    }
+  <div class="page-header animate-fade-in-up" style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <div>
+      <h1>Dashboard Internal Audit</h1>
+      @if (facade.dashboard(); as d) {
+        <p class="page-subtitle">Logged in as <strong>{{ d.audit_user.name }}</strong> ({{ d.audit_user.nip }})</p>
+      }
+    </div>
+    <button (click)="facade.exportReport()" class="btn btn--success" [disabled]="facade.isLoading()" style="margin-top: 8px;">
+      Export to Excel
+    </button>
   </div>
 
   @if (facade.isLoading() && !facade.dashboard()) {
     <div class="loading-overlay"><span class="spinner spinner--lg"></span><p>Memuat dashboard audit...</p></div>
   } @else if (facade.dashboard(); as d) {
-    <div class="grid grid--4 animate-fade-in-up" style="margin-bottom: 32px;">
+    <div class="grid grid--4 animate-fade-in-up" style="margin-bottom: 24px;">
       <div class="stat-card">
-        <div class="stat-card__icon" style="background: var(--color-primary-50);">👔</div>
         <div class="stat-card__value">{{ d.overview.total_cmo }}</div>
         <div class="stat-card__label">Total CMO</div>
       </div>
       <div class="stat-card">
-        <div class="stat-card__icon" style="background: var(--color-danger-light);">🚨</div>
         <div class="stat-card__value">{{ d.overview.total_cmo_with_fraud }}</div>
         <div class="stat-card__label">CMO dengan Fraud</div>
       </div>
       <div class="stat-card">
-        <div class="stat-card__icon" style="background: var(--color-warning-light);">🚩</div>
         <div class="stat-card__value">{{ d.overview.flagged_customers }}</div>
         <div class="stat-card__label">Flagged Customers</div>
       </div>
       <div class="stat-card">
-        <div class="stat-card__icon" style="background: var(--color-danger-light);">❌</div>
         <div class="stat-card__value">{{ d.overview.confirmed_fraud }}</div>
         <div class="stat-card__label">Confirmed Fraud</div>
       </div>
@@ -35,8 +36,8 @@
     @if (d.cmo_fraud_summary && d.cmo_fraud_summary.length > 0) {
       <div class="card animate-fade-in-up">
         <div class="card__header">
-          <h2 class="card__title">👔 CMO Fraud Summary</h2>
-          <a routerLink="/audit/cmo-list" class="btn btn--secondary btn--sm">Detail CMO →</a>
+          <h2 class="card__title">CMO Fraud Summary</h2>
+          <a routerLink="/audit/cmo-list" class="btn btn--secondary btn--sm">Detail CMO</a>
         </div>
         <div class="card__body" style="padding:0; overflow-x:auto;">
           <table class="data-table">
@@ -50,7 +51,7 @@
                   <td>{{ cmo.total_customers }}</td>
                   <td>@if (cmo.flagged_count > 0) { <span class="badge badge--warning">{{ cmo.flagged_count }}</span> } @else { 0 }</td>
                   <td>@if (cmo.confirmed_fraud_count > 0) { <span class="badge badge--danger">{{ cmo.confirmed_fraud_count }}</span> } @else { 0 }</td>
-                  <td><a [routerLink]="['/audit/cmo', cmo.cmo_id]" class="btn btn--primary btn--sm">🔍 Drill Down</a></td>
+                  <td><a [routerLink]="['/audit/cmo', cmo.cmo_id]" class="btn btn--primary btn--sm">Drill Down</a></td>
                 </tr>
               }
             </tbody>

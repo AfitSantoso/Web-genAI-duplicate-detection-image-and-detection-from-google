@@ -206,6 +206,7 @@ export interface BreakdownItem {
   status?: string;
   detection_status?: string;
   detection_confidence?: number;
+  detection_method?: string;
   matched_fields?: MatchedField[];
   comparison_summary?: string;
   fraud_patterns?: string[];
@@ -213,6 +214,17 @@ export interface BreakdownItem {
   visual_analysis?: string;
   google_lens_status?: string;
   note?: string;
+  ocr_extraction_note?: string;
+  previous_customer?: PreviousCustomer;
+}
+
+export interface PreviousCustomer {
+  customer_id: number;
+  no_contract: string;
+  customer_name: string;
+  cmo_name: string;
+  cmo_nip: string;
+  fraud_status: string;
 }
 
 export interface MatchedField {
@@ -229,6 +241,7 @@ export interface SimilarMatch {
   source: string;
   title: string;
   link?: string;
+  thumbnail?: string;
   similarity_percentage: number;
   similarity_description: string;
 }

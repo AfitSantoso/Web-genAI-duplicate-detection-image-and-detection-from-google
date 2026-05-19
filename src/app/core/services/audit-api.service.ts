@@ -40,4 +40,10 @@ export class AuditApiService {
       `${this.env.apiUrl}/audit/customer/${customerId}/fraud-result`
     );
   }
+
+  exportExcel(): Observable<Blob> {
+    return this.http.get(`${this.env.apiUrl}/audit/export-excel`, {
+      responseType: 'blob'
+    });
+  }
 }

@@ -11,10 +11,8 @@ import { UserRole } from '../../core/models/api.model';
     <div class="login-page">
       <div class="login-container animate-fade-in-up">
         <div class="login-header">
-          <div class="login-header__logo">🛡️</div>
           <h1 class="login-header__title">FRIDAYS</h1>
           <p class="login-header__subtitle">Fraud Detection & Document Intelligence System</p>
-          <span class="login-header__badge">v4.0</span>
         </div>
 
         <form class="login-form" (ngSubmit)="onLogin()">
@@ -58,13 +56,13 @@ import { UserRole } from '../../core/models/api.model';
               type="button"
               class="password-toggle"
               (click)="showPassword.set(!showPassword())">
-              {{ showPassword() ? '🙈' : '👁️' }}
+              {{ showPassword() ? 'Hide' : 'Show' }}
             </button>
           </div>
 
           @if (auth.loginError()) {
             <div class="login-error animate-fade-in">
-              <span>⚠️</span> {{ auth.loginError() }}
+              {{ auth.loginError() }}
             </div>
           }
 
@@ -81,14 +79,7 @@ import { UserRole } from '../../core/models/api.model';
           </button>
         </form>
 
-        <div class="login-footer">
-          <p class="login-footer__text">Demo Credentials</p>
-          <div class="login-footer__creds">
-            <code>CMO001 / Cmo&#64;12345</code>
-            <code>BM001 / Bm&#64;12345</code>
-            <code>AUD001 / Audit&#64;12345</code>
-          </div>
-        </div>
+
       </div>
     </div>
   `,
@@ -98,101 +89,65 @@ import { UserRole } from '../../core/models/api.model';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--color-primary-dark);
-      position: relative;
-      overflow: hidden;
+      background: #F3F4F6;
       padding: 20px;
-    }
-
-    .login-page::before {
-      content: '';
-      position: absolute;
-      top: -40%;
-      right: -20%;
-      width: 700px;
-      height: 700px;
-      background: radial-gradient(circle, rgba(212, 168, 67, 0.08) 0%, transparent 70%);
-      border-radius: 50%;
-    }
-
-    .login-page::after {
-      content: '';
-      position: absolute;
-      bottom: -30%;
-      left: -10%;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(30, 41, 59, 0.6) 0%, transparent 70%);
-      border-radius: 50%;
     }
 
     .login-container {
       width: 100%;
-      max-width: 440px;
-      background: rgba(255, 255, 255, 0.98);
+      max-width: 400px;
+      background: #FFFFFF;
+      border: 1px solid var(--color-border);
       border-radius: var(--radius-xl);
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
       overflow: hidden;
-      position: relative;
-      z-index: 1;
     }
 
     .login-header {
       text-align: center;
-      padding: 40px 32px 24px;
-      background: var(--color-primary-dark);
-      color: white;
-
-      &__logo {
-        font-size: 2.8rem;
-        margin-bottom: 12px;
-      }
+      padding: 32px 28px 20px;
 
       &__title {
-        font-size: 2rem;
-        font-weight: 900;
-        letter-spacing: -0.04em;
-        margin-bottom: 6px;
-        color: var(--color-accent);
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin-bottom: 4px;
       }
 
       &__subtitle {
-        font-size: 0.85rem;
-        opacity: 0.6;
-        margin-bottom: 12px;
+        font-size: 0.82rem;
+        color: var(--color-text-muted);
+        margin-bottom: 10px;
       }
 
       &__badge {
         display: inline-block;
         font-size: 0.7rem;
-        font-weight: 700;
-        color: var(--color-accent);
-        background: rgba(212, 168, 67, 0.15);
-        padding: 3px 12px;
+        font-weight: 500;
+        color: var(--color-primary);
+        background: var(--color-primary-50);
+        padding: 2px 10px;
         border-radius: var(--radius-full);
-        letter-spacing: 0.06em;
       }
     }
 
     .login-form {
-      padding: 32px;
+      padding: 24px 28px;
     }
 
     .role-selector {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .role-btn {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 4px;
-      padding: 12px 8px;
-      border: 2px solid var(--color-border);
-      border-radius: var(--radius-md);
+      justify-content: center;
+      padding: 10px 8px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
       background: var(--color-surface);
       cursor: pointer;
       transition: all var(--transition-fast);
@@ -204,15 +159,14 @@ import { UserRole } from '../../core/models/api.model';
       }
 
       &.active {
-        border-color: var(--color-primary-dark);
+        border-color: var(--color-primary);
         background: var(--color-primary-50);
-        box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+        color: var(--color-primary);
       }
 
       &__label {
         font-size: 0.8rem;
-        font-weight: 700;
-        color: var(--color-text);
+        font-weight: 600;
       }
     }
 
@@ -222,40 +176,45 @@ import { UserRole } from '../../core/models/api.model';
 
     .password-toggle {
       position: absolute;
-      right: 12px;
-      bottom: 10px;
+      right: 10px;
+      bottom: 8px;
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 1rem;
-      padding: 2px 4px;
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      font-family: var(--font-family);
+
+      &:hover {
+        color: var(--color-text);
+      }
     }
 
     .login-error {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 12px 14px;
+      padding: 10px 12px;
       background: var(--color-danger-light);
       border-radius: var(--radius-sm);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: #991b1b;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .login-footer {
-      padding: 20px 32px;
+      padding: 16px 28px;
       background: var(--color-bg);
       border-top: 1px solid var(--color-border-light);
       text-align: center;
 
       &__text {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         color: var(--color-text-muted);
-        font-weight: 600;
+        font-weight: 500;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-bottom: 8px;
+        letter-spacing: 0.06em;
+        margin-bottom: 6px;
       }
 
       &__creds {
@@ -265,10 +224,10 @@ import { UserRole } from '../../core/models/api.model';
 
         code {
           font-family: var(--font-mono);
-          font-size: 0.75rem;
+          font-size: 0.72rem;
           color: var(--color-text-secondary);
           background: var(--color-surface);
-          padding: 4px 10px;
+          padding: 3px 8px;
           border-radius: var(--radius-sm);
           border: 1px solid var(--color-border);
         }

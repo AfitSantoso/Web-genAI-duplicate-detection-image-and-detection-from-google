@@ -9,6 +9,8 @@ import {
   ReviewRequest,
   ReviewHistory,
   Customer,
+  AuditCmoCustomers,
+  AuditCmoCustomer,
 } from '../models/api.model';
 
 /**
@@ -29,6 +31,7 @@ export class BmFacade {
   private readonly _dashboard = signal<BmDashboard | null>(null);
   private readonly _cmoList = signal<CmoFraudSummary[]>([]);
   private readonly _cmoCustomers = signal<Customer[]>([]);
+  private readonly _cmoCustomersData = signal<AuditCmoCustomers | null>(null);
   private readonly _flaggedCustomers = signal<FlaggedCustomer[]>([]);
   private readonly _googleFlagged = signal<FlaggedCustomer[]>([]);
   private readonly _fraudResult = signal<FridaysScoreData | null>(null);
@@ -39,6 +42,7 @@ export class BmFacade {
   readonly dashboard = this._dashboard.asReadonly();
   readonly cmoList = this._cmoList.asReadonly();
   readonly cmoCustomers = this._cmoCustomers.asReadonly();
+  readonly cmoCustomersData = this._cmoCustomersData.asReadonly();
   readonly flaggedCustomers = this._flaggedCustomers.asReadonly();
   readonly googleFlagged = this._googleFlagged.asReadonly();
   readonly fraudResult = this._fraudResult.asReadonly();
@@ -113,6 +117,50 @@ export class BmFacade {
         if (res.success && res.data) {
           const customers = (res.data.customers ?? []) as Customer[];
           this._cmoCustomers.set(customers);
+        }
+      },
+      error: () => {
+        this._isLoading.set(false);
+        this.notify.error('Error', 'Gagal memuat customer CMO');
+      },
+    });
+  }
+
+  /**
+   * Backend: GET /bm/cmo/{cmoId}/customers
+   * Maps to AuditCmoCustomers shape for consistent UI display.
+   */
+  loadCmoCustomersData(cmoId: number): void {
+    this._isLoading.set(true);
+    this._cmoCustomersData.set(null);
+    this.bmApi.getCmoCustomers(cmoId).subscribe({
+      next: (res) => {
+        this._isLoading.set(false);
+        if (res.success && res.data) {
+          const raw = res.data;
+          const cmoInfo = (raw.cmo ?? {}) as Record<string, unknown>;
+          const mapped: AuditCmoCustomers = {
+            cmo: {
+              id: (cmoInfo['id'] as number) ?? cmoId,
+              name: (cmoInfo['name'] as string) ?? '',
+              nip: (cmoInfo['nip'] as string) ?? '',
+              area: (cmoInfo['area'] as string) ?? '',
+            },
+            total_customers: (raw as Record<string, unknown>)['total_customers'] as number ?? raw.total ?? 0,
+            customers: ((raw.customers ?? []) as Record<string, unknown>[]).map((c) => ({
+              customer_id: (c['id'] as number) ?? (c['customer_id'] as number) ?? 0,
+              no_contract: (c['no_contract'] as string) ?? '',
+              customer_name: (c['name'] as string) ?? (c['customer_name'] as string) ?? '',
+              fraud_status: (c['fraud_status'] as string) ?? 'PENDING',
+              score_percentage: (c['score_percentage'] as number) ?? 0,
+              decision: (c['decision'] as string) ?? '-',
+              risk_level: (c['risk_level'] as string) ?? 'LOW',
+              total_flagged: (c['total_flagged'] as number) ?? 0,
+              any_fraud_detected: (c['any_fraud_detected'] as boolean) ?? false,
+              fridays_calculated_at: (c['fridays_calculated_at'] as string) ?? '',
+            })),
+          };
+          this._cmoCustomersData.set(mapped);
         }
       },
       error: () => {

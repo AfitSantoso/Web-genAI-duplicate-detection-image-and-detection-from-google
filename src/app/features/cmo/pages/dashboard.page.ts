@@ -18,22 +18,19 @@ import { AuthFacade } from '../../../core/facades/auth.facade';
         </div>
       </div>
 
-      <div class="grid grid--3" style="margin-bottom: 32px;">
+      <div class="grid grid--3" style="margin-bottom: 24px;">
         <div class="stat-card animate-fade-in-up" style="animation-delay: 0.1s">
-          <div class="stat-card__icon" style="background: var(--color-accent-50);">👥</div>
           <div class="stat-card__value">{{ facade.customerCount() }}</div>
           <div class="stat-card__label">Total Customer</div>
         </div>
 
         <a routerLink="/cmo/upload" class="stat-card stat-card--link animate-fade-in-up" style="animation-delay: 0.2s">
-          <div class="stat-card__icon" style="background: var(--color-primary-50);">📤</div>
-          <div class="stat-card__value" style="font-size: 1.3rem;">Upload Dokumen</div>
+          <div class="stat-card__value" style="font-size: 1.1rem;">Upload Dokumen</div>
           <div class="stat-card__label">Upload All / Bulk Upload</div>
         </a>
 
         <a routerLink="/cmo/customers" class="stat-card stat-card--link animate-fade-in-up" style="animation-delay: 0.3s">
-          <div class="stat-card__icon" style="background: var(--color-primary-50);">📋</div>
-          <div class="stat-card__value" style="font-size: 1.3rem;">Kelola Customer</div>
+          <div class="stat-card__value" style="font-size: 1.1rem;">Kelola Customer</div>
           <div class="stat-card__label">Buat & Lihat Customer</div>
         </a>
       </div>
@@ -51,10 +48,9 @@ import { AuthFacade } from '../../../core/facades/auth.facade';
             </div>
           } @else if (facade.customers().length === 0) {
             <div class="empty-state">
-              <div class="empty-state__icon">📭</div>
               <h3 class="empty-state__title">Belum ada customer</h3>
               <p class="empty-state__desc">Buat customer baru untuk memulai upload dokumen.</p>
-              <a routerLink="/cmo/customers" class="btn btn--primary" style="margin-top: 16px;">
+              <a routerLink="/cmo/customers" class="btn btn--primary" style="margin-top: 12px;">
                 + Buat Customer
               </a>
             </div>
@@ -97,19 +93,18 @@ import { AuthFacade } from '../../../core/facades/auth.facade';
   `,
   styles: [`
     .page-header {
-      margin-bottom: 32px;
+      margin-bottom: 24px;
 
       &__title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        letter-spacing: -0.03em;
+        font-size: 1.25rem;
+        font-weight: 700;
         color: var(--color-text);
       }
 
       &__subtitle {
-        font-size: 0.95rem;
+        font-size: 0.85rem;
         color: var(--color-text-secondary);
-        margin-top: 4px;
+        margin-top: 2px;
       }
     }
 
@@ -117,6 +112,10 @@ import { AuthFacade } from '../../../core/facades/auth.facade';
       text-decoration: none;
       color: inherit;
       cursor: pointer;
+
+      &:hover {
+        box-shadow: var(--shadow-md);
+      }
     }
   `],
 })

@@ -31,14 +31,14 @@ export class CmoUploadPage implements OnInit {
   readonly isDragOver = signal(false);
 
   readonly docTypes = [
-    { key: 'KTP', label: 'KTP', icon: '🪪', desc: 'Kartu Tanda Penduduk' },
-    { key: 'NPWP', label: 'NPWP', icon: '📄', desc: 'Nomor Pokok Wajib Pajak' },
-    { key: 'PBB', label: 'PBB', icon: '🏠', desc: 'Pajak Bumi & Bangunan' },
-    { key: 'SLIPGAJI', label: 'Slip Gaji', icon: '💰', desc: 'Slip Gaji Karyawan' },
-    { key: 'MUTASI', label: 'Mutasi', icon: '🏦', desc: 'Mutasi Rekening Bank' },
-    { key: 'LISTRIK', label: 'Listrik', icon: '⚡', desc: 'Tagihan Listrik PLN' },
-    { key: 'TEMPAT_TINGGAL', label: 'Foto Rumah', icon: '📸', desc: 'Bukti Tempat Tinggal' },
-    { key: 'USAHA', label: 'Foto Usaha', icon: '🏪', desc: 'Bukti Tempat Usaha' },
+    { key: 'KTP', label: 'KTP', desc: 'Kartu Tanda Penduduk' },
+    { key: 'NPWP', label: 'NPWP', desc: 'Nomor Pokok Wajib Pajak' },
+    { key: 'PBB', label: 'PBB', desc: 'Pajak Bumi & Bangunan' },
+    { key: 'SLIPGAJI', label: 'Slip Gaji', desc: 'Slip Gaji Karyawan' },
+    { key: 'MUTASI', label: 'Mutasi', desc: 'Mutasi Rekening Bank' },
+    { key: 'LISTRIK', label: 'Listrik', desc: 'Tagihan Listrik PLN' },
+    { key: 'TEMPAT_TINGGAL', label: 'Foto Rumah', desc: 'Bukti Tempat Tinggal' },
+    { key: 'USAHA', label: 'Foto Usaha', desc: 'Bukti Tempat Usaha' },
   ];
 
   ngOnInit(): void {

@@ -64,6 +64,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'cmo/:cmoId',
+        loadComponent: () =>
+          import('./features/bm/pages/cmo-customers.page').then(
+            (m) => m.BmCmoCustomersPage
+          ),
+      },
+      {
         path: 'fraud-result/:customerId',
         loadComponent: () =>
           import('./features/bm/pages/fraud-result.page').then(

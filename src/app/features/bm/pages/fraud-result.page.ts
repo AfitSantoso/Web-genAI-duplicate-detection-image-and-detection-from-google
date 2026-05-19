@@ -58,4 +58,20 @@ export class FraudResultPage implements OnInit {
   get isBm(): boolean {
     return this.auth.userRole() === 'BM';
   }
+
+  get flaggedDocuments(): string[] {
+    const res = this.facade.fraudResult();
+    if (!res?.breakdown) return [];
+    return res.breakdown
+      .filter(i => i.detection_status?.includes('DUPLICATE') || i.similarity_percentage > 50)
+      .map(i => i.component);
+  }
+
+  get cleanDocuments(): string[] {
+    const res = this.facade.fraudResult();
+    if (!res?.breakdown) return [];
+    return res.breakdown
+      .filter(i => !i.detection_status?.includes('DUPLICATE') && i.similarity_percentage <= 50)
+      .map(i => i.component);
+  }
 }

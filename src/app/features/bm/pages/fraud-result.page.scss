@@ -10,12 +10,11 @@
     font-weight: 800;
     letter-spacing: -0.03em;
   }
+}
 
-  .text-muted {
-    font-size: 0.9rem;
-    color: var(--color-text-muted);
-    margin-top: 4px;
-  }
+.text-muted {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
 }
 
 .conclusion-banner {
@@ -125,15 +124,7 @@
     line-height: 1.5;
   }
 
-  &__note {
-    font-size: 0.85rem;
-    color: var(--color-danger);
-    font-weight: 600;
-    margin-top: 8px;
-    padding: 8px 12px;
-    background: var(--color-danger-light);
-    border-radius: var(--radius-sm);
-  }
+
 }
 
 .sim-value {
@@ -147,6 +138,22 @@
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+.breakdown-note-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.note-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 .matched-fields {
@@ -206,13 +213,13 @@
 .similar-matches {
   margin-top: 12px;
   padding: 12px;
-  background: var(--color-warning-light);
+  background: transparent;
   border-radius: var(--radius-sm);
 
   h5 {
     font-size: 0.8rem;
     font-weight: 700;
-    color: #92400E;
+    color: var(--color-text);
     margin-bottom: 8px;
   }
 }

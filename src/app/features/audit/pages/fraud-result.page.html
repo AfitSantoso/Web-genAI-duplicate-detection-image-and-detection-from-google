@@ -3,12 +3,11 @@
     <div class="loading-overlay"><span class="spinner spinner--lg"></span><p>Memuat hasil analisis...</p></div>
   } @else if (facade.fraudResult(); as data) {
     <div class="fraud-header animate-fade-in-up">
-      <h1>🔍 Detail Fraud - {{ data.customer.name }}</h1>
+      <h1>Detail Fraud - {{ data.customer.name }}</h1>
       <p class="text-muted">{{ data.customer.no_contract }} | CMO: {{ data.customer.cmo_name }} ({{ data.customer.cmo_nip }})</p>
     </div>
 
     <div class="conclusion-banner animate-fade-in-up" [class.fiktif]="data.fridays_score.conclusion === 'FIKTIF'" [class.asli]="data.fridays_score.conclusion === 'ASLI'">
-      <div class="conclusion-banner__icon">{{ data.fridays_score.conclusion === 'FIKTIF' ? '❌' : '✅' }}</div>
       <div class="conclusion-banner__content">
         <h2>{{ data.fridays_score.conclusion }}</h2>
         <p>{{ data.fridays_score.conclusion_summary }}</p>
@@ -19,10 +18,10 @@
       </div>
     </div>
 
-    <div class="grid grid--3 animate-fade-in-up" style="margin: 24px 0;">
+    <div class="grid grid--3 animate-fade-in-up" style="margin: 20px 0;">
       <div class="stat-card">
         <div class="stat-card__value" [style.color]="getRiskColor(getRiskLevelString(data.fridays_score.risk_level))">{{ data.fridays_score.decision }}</div>
-        <div class="stat-card__label">Keputusan</div>
+        <div class="stat-card__label">Rekomendasi</div>
       </div>
       <div class="stat-card">
         <div class="stat-card__value">{{ data.fridays_score.total_flagged }}</div>
@@ -35,17 +34,18 @@
     </div>
 
     @if (data.fridays_score.conclusion_detail; as cd) {
-      <div class="card animate-fade-in-up" style="margin-bottom: 24px;">
-        <div class="card__header"><h2 class="card__title">📋 Detail Kesimpulan</h2></div>
+      <div class="card animate-fade-in-up" style="margin-bottom: 20px;">
+        <div class="card__header"><h2 class="card__title">Detail Kesimpulan</h2></div>
         <div class="card__body">
-          <p style="margin-bottom: 16px;">{{ cd.explanation }}</p>
+          <p style="margin-bottom: 14px;">{{ cd.explanation }}</p>
           <div class="grid grid--2">
-            <div><h4 style="color: var(--color-danger); margin-bottom: 8px;">❌ Fiktif ({{ cd.total_fiktif }})</h4>
-              @for (doc of cd.fiktif_documents; track doc) { <span class="badge badge--danger" style="margin: 2px;">{{ doc }}</span> }
-              @if (cd.fiktif_documents.length === 0) { <span class="text-muted">Tidak ada</span> }
+            <div><h4 style="color: var(--color-danger); margin-bottom: 6px; font-size: 0.9rem;">Flagged ({{ flaggedDocuments.length }})</h4>
+              @for (doc of flaggedDocuments; track doc) { <span class="badge badge--danger" style="margin: 2px;">{{ doc }}</span> }
+              @if (flaggedDocuments.length === 0) { <span class="text-muted">Tidak ada</span> }
             </div>
-            <div><h4 style="color: var(--color-success); margin-bottom: 8px;">✅ Asli ({{ cd.total_asli }})</h4>
-              @for (doc of cd.asli_documents; track doc) { <span class="badge badge--success" style="margin: 2px;">{{ doc }}</span> }
+            <div><h4 style="color: var(--color-success); margin-bottom: 6px; font-size: 0.9rem;">Aman ({{ cleanDocuments.length }})</h4>
+              @for (doc of cleanDocuments; track doc) { <span class="badge badge--success" style="margin: 2px;">{{ doc }}</span> }
+              @if (cleanDocuments.length === 0) { <span class="text-muted">Tidak ada</span> }
             </div>
           </div>
         </div>
@@ -53,7 +53,7 @@
     }
 
     <div class="card animate-fade-in-up">
-      <div class="card__header"><h2 class="card__title">🧬 Breakdown Per Dokumen</h2></div>
+      <div class="card__header"><h2 class="card__title">Breakdown Per Dokumen</h2></div>
       <div class="card__body" style="padding: 0;">
         @for (item of data.breakdown; track item.component) {
           <div class="breakdown-item">
@@ -63,19 +63,101 @@
                 <strong>{{ item.component }}</strong>
               </div>
               <div class="breakdown-item__sim">
-                <span [style.color]="item.similarity_percentage > 50 ? 'var(--color-danger)' : 'var(--color-success)'" style="font-size: 1.3rem; font-weight: 800;">{{ item.similarity_percentage | number:'1.1-1' }}%</span>
+                <span [style.color]="item.similarity_percentage > 50 ? 'var(--color-danger)' : 'var(--color-success)'" style="font-size: 1.1rem; font-weight: 700;">{{ item.similarity_percentage | number:'1.1-1' }}%</span>
               </div>
             </div>
-            <div class="progress-bar" [class.progress-bar--danger]="item.similarity_percentage > 50" [class.progress-bar--success]="item.similarity_percentage <= 50" style="margin: 10px 0;">
+            <div class="progress-bar" [class.progress-bar--danger]="item.similarity_percentage > 50" [class.progress-bar--success]="item.similarity_percentage <= 50" style="margin: 8px 0;">
               <div class="progress-bar__fill" [style.width.%]="item.similarity_percentage"></div>
             </div>
-            @if (item.comparison_summary) { <p class="breakdown-summary">💡 {{ item.comparison_summary }}</p> }
-            @if (item.note) { <p class="breakdown-note">{{ item.note }}</p> }
+
+            @if (item.matched_fields && item.matched_fields.length > 0) {
+              <div class="matched-fields" style="background: var(--bg-surface, #f8f9fa); padding: 12px; border-radius: 6px; margin: 12px 0;">
+                <h5 style="margin-bottom: 10px;">Parameter OCR / Hash yang Cocok:</h5>
+                @for (f of item.matched_fields; track f.field_key) {
+                  <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border, #eaeaea);">
+                    <div class="matched-field" style="border: none; padding: 0; margin: 0; background: transparent;">
+                      <span class="matched-field__name"><strong>{{ f.field }}</strong></span>
+                      <span class="matched-field__preview" style="font-family: var(--font-mono); color: var(--color-primary);">{{ f.value_preview }}</span>
+                      <span class="badge" [class.badge--danger]="f.is_match" [class.badge--success]="!f.is_match">{{ f.similarity_percentage | number:'1.0-0' }}%</span>
+                    </div>
+                    @if (f.detail) {
+                      <div class="text-muted" style="font-size: 0.85rem; margin-top: 4px;">
+                        <em>Catatan:</em> {{ f.detail }}
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            @if (item.previous_customer) {
+              <div class="previous-customer" style="margin-top: 12px; background: rgba(220, 53, 69, 0.05); border: 1px solid #dc3545; padding: 12px; border-radius: 6px;">
+                <h5 style="color: #dc3545; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 1.2rem;">⚠️</span> Identik dengan Konsumen Lain
+                </h5>
+                <div class="grid grid--2" style="font-size: 0.9rem; gap: 8px;">
+                  <div><span class="text-muted">Nama:</span> <strong style="color: var(--color-text);">{{ item.previous_customer.customer_name }}</strong></div>
+                  <div><span class="text-muted">No Kontrak:</span> <strong style="color: var(--color-text);">{{ item.previous_customer.no_contract }}</strong></div>
+                  <div><span class="text-muted">CMO:</span> <strong style="color: var(--color-text);">{{ item.previous_customer.cmo_name }} ({{ item.previous_customer.cmo_nip }})</strong></div>
+                  <div><span class="text-muted">Status:</span> <span class="badge badge--warning">{{ item.previous_customer.fraud_status }}</span></div>
+                </div>
+              </div>
+            }
+
+            @if (item.top_similar_matches && item.top_similar_matches.length > 0) {
+              <div class="similar-matches" style="margin-top: 16px;">
+                <h5 style="margin-bottom: 12px;">Sumber Mirip dari Internet (Google Lens):</h5>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  @for (m of item.top_similar_matches; track m.rank) {
+                    <div class="similar-match" style="display: flex; gap: 12px; align-items: flex-start; background: var(--bg-surface, #f8f9fa); padding: 12px; border-radius: 8px; border: 1px solid var(--color-border, #eaeaea);">
+                      @if (m.thumbnail) {
+                        <img [src]="m.thumbnail" alt="Thumbnail" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; flex-shrink: 0; background: #ddd; border: 1px solid var(--color-border, #eaeaea);">
+                      } @else {
+                        <div style="width: 80px; height: 80px; border-radius: 4px; flex-shrink: 0; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; color: #ccc;">#{{ m.rank }}</div>
+                      }
+                      <div style="flex-grow: 1; overflow: hidden;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                          <h6 style="margin: 0; font-size: 1rem; line-height: 1.4;">
+                            @if (m.link) {
+                              <a [href]="m.link" target="_blank" style="color: var(--color-primary); text-decoration: none;">{{ m.title || m.source }}</a>
+                            } @else {
+                              {{ m.title || m.source }}
+                            }
+                          </h6>
+                          <span class="badge badge--warning" style="white-space: nowrap;">{{ m.similarity_percentage | number:'1.1-1' }}%</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--color-text-secondary, #6c757d); margin-top: 4px;">
+                          <strong>Sumber:</strong> {{ m.source }}
+                        </div>
+                        <div style="font-size: 0.9rem; margin-top: 6px;">
+                          {{ m.similarity_description }}
+                        </div>
+                        @if (m.link) {
+                          <div style="margin-top: 8px;">
+                            <a [href]="m.link" target="_blank" class="btn btn--sm btn--secondary" style="font-size: 0.75rem; padding: 4px 8px;">Buka Link Sumber &rarr;</a>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+            @if (item.note) {
+              <div class="breakdown-note-container">
+                @if (item.note.includes('unik')) {
+                  <img src="/check-square.svg" alt="Check" class="note-icon">
+                } @else if (item.note.includes('DUPLIKAT')) {
+                  <img src="/warning.svg" alt="Warning" class="note-icon">
+                }
+                <span>{{ item.note.replace('✅ ', '').replace('⚠️ ', '') }}</span>
+              </div>
+            }
           </div>
         }
       </div>
     </div>
   } @else {
-    <div class="empty-state"><div class="empty-state__icon">📭</div><h3 class="empty-state__title">Data tidak ditemukan</h3></div>
+    <div class="empty-state"><h3 class="empty-state__title">Data tidak ditemukan</h3></div>
   }
 </div>

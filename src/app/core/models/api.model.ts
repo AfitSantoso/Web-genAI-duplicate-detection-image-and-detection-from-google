@@ -171,6 +171,67 @@ export interface FridaysScoreData {
   };
   fridays_score: FridaysScore;
   breakdown: BreakdownItem[];
+  cross_reference?: CrossReference;
+  related_customers?: RelatedCustomersData;
+}
+
+// ─── Fraud Network (Related Customers) ────────────────
+export interface RelatedCustomerItem {
+  customer_id: number;
+  no_contract: string;
+  customer_name: string;
+  fraud_status: string;
+  created_at?: string;
+  cmo_name?: string;
+  cmo_nip?: string;
+  score_percentage?: number;
+  decision?: string;
+  risk_level?: string;
+  any_fraud_detected?: boolean;
+  total_flagged?: number;
+  shared_doc_type?: string;
+  shared_detail?: string;
+  name_similarity?: number;
+  similarity_detail?: string;
+}
+
+export interface FraudNetworkSummary {
+  total_related: number;
+  total_same_cmo: number;
+  total_shared_documents: number;
+  total_similar_name: number;
+  total_flagged: number;
+  total_confirmed_fraud: number;
+  risk_level: string;
+  risk_assessment: string;
+}
+
+export interface RelatedCustomersData {
+  target_customer: Record<string, unknown>;
+  related_by_cmo: RelatedCustomerItem[];
+  related_by_document: RelatedCustomerItem[];
+  related_by_name: RelatedCustomerItem[];
+  fraud_network_summary: FraudNetworkSummary;
+}
+
+export interface CrossReference {
+  has_cross_match: boolean;
+  total_cross_matches: number;
+  involved_cmo_names: string[];
+  involved_customer_names: string[];
+  summary: string;
+  matches: CrossReferenceMatch[];
+}
+
+export interface CrossReferenceMatch {
+  document_type: string;
+  detection_status: string;
+  similarity_percentage: number;
+  previous_customer_name: string;
+  previous_no_contract: string;
+  previous_cmo_name: string;
+  previous_cmo_nip: string;
+  previous_fraud_status: string;
 }
 
 export interface FridaysScore {

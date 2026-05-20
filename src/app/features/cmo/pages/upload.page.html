@@ -140,14 +140,24 @@
             @for (entry of result.documents | keyvalue; track entry.key) {
               <div class="result-item result-item--success">
                 <strong>{{ entry.key }}</strong>
-                <span>{{ entry.value.status }}</span>
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  @if (entry.value.status.includes('✅')) {
+                    <img src="/check-square.svg" style="width: 16px; height: 16px;" alt="Success" />
+                  }
+                  {{ entry.value.status.replace('✅ ', '') }}
+                </span>
                 <small>{{ entry.value.filename }}</small>
               </div>
             }
             @for (entry of result.proofs | keyvalue; track entry.key) {
               <div class="result-item result-item--info">
                 <strong>{{ entry.key }}</strong>
-                <span>{{ entry.value.status }}</span>
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  @if (entry.value.status.includes('✅')) {
+                    <img src="/check-square.svg" style="width: 16px; height: 16px;" alt="Success" />
+                  }
+                  {{ entry.value.status.replace('✅ ', '') }}
+                </span>
                 <small>{{ entry.value.filename }}</small>
               </div>
             }
@@ -173,7 +183,12 @@
             @for (entry of result.documents | keyvalue; track entry.key) {
               <div class="result-item result-item--success">
                 <strong>{{ entry.key }}</strong>
-                <span>{{ entry.value.status }}</span>
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  @if (entry.value.status.includes('✅')) {
+                    <img src="/check-square.svg" style="width: 16px; height: 16px;" alt="Success" />
+                  }
+                  {{ entry.value.status.replace('✅ ', '') }}
+                </span>
                 <small>{{ entry.value.filename }}</small>
                 @if (entry.value.classification_confidence) { <span class="badge badge--info">{{ (entry.value.classification_confidence * 100) | number:'1.0-0' }}%</span> }
               </div>

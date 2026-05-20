@@ -67,15 +67,166 @@
       </div>
     }
 
-    <!-- Breakdown -->
+    <!-- Cross Reference Match -->
+    @if (data.cross_reference && data.cross_reference.has_cross_match) {
+      <div class="card animate-fade-in-up" style="border-left: 4px solid var(--color-danger); background: rgba(220, 53, 69, 0.05); margin-bottom: 20px;">
+        <div class="card__body">
+          <h3 style="color: var(--color-danger); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+            <img src="/warning.svg" alt="Warning" style="width: 24px; height: 24px;" />
+            Peringatan: Terindikasi Cross-Customer Fraud!
+          </h3>
+          <p style="margin-bottom: 16px;">{{ data.cross_reference.summary }}</p>
+          
+          <div class="grid grid--2">
+            @for (match of data.cross_reference.matches; track match.document_type) {
+              <div style="background: var(--bg-surface, #fff); border: 1px solid var(--color-border); padding: 16px; border-radius: 8px;">
+                <h4 style="margin-bottom: 12px; display: flex; justify-content: space-between;">
+                  <span>Dokumen <strong>{{ match.document_type }}</strong></span>
+                  <span class="badge badge--danger">{{ match.similarity_percentage | number:'1.0-0' }}% Mirip</span>
+                </h4>
+                <div style="display: grid; grid-template-columns: 100px 1fr; gap: 8px; font-size: 0.9rem;">
+                  <span class="text-muted">Customer Asal:</span>
+                  <strong>{{ match.previous_customer_name }} ({{ match.previous_no_contract }})</strong>
+                  
+                  <span class="text-muted">Status Asal:</span>
+                  <span class="badge badge--warning" style="width: fit-content;">{{ match.previous_fraud_status }}</span>
+                  
+                  <span class="text-muted">Di-upload Oleh:</span>
+                  <strong>{{ match.previous_cmo_name }} ({{ match.previous_cmo_nip }})</strong>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Fraud Network — Customer Terkait -->
+    @if (data.related_customers; as rc) {
+      @if (rc.fraud_network_summary.total_related > 0) {
+        <div class="card animate-fade-in-up" style="margin-bottom: 20px; border-left: 4px solid var(--color-primary);">
+          <div class="card__header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 class="card__title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+              🔗 Fraud Network — Customer Terkait
+            </h2>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span class="badge"
+                [class.badge--danger]="rc.fraud_network_summary.risk_level === 'CRITICAL' || rc.fraud_network_summary.risk_level === 'HIGH'"
+                [class.badge--warning]="rc.fraud_network_summary.risk_level === 'MEDIUM'"
+                [class.badge--info]="rc.fraud_network_summary.risk_level === 'LOW'">
+                {{ rc.fraud_network_summary.risk_level }}
+              </span>
+              <span class="badge badge--neutral">{{ rc.fraud_network_summary.total_related }} terkait</span>
+            </div>
+          </div>
+          <div class="card__body">
+            <!-- Risk Assessment Summary -->
+            @if (rc.fraud_network_summary.risk_assessment) {
+              <div style="background: var(--bg-surface, #f8f9fa); padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.9rem; border: 1px solid var(--color-border, #eaeaea);">
+                <strong>Penilaian Risiko:</strong> {{ rc.fraud_network_summary.risk_assessment }}
+              </div>
+            }
+
+            <!-- Summary Stats -->
+            <div class="grid grid--3" style="margin-bottom: 16px; gap: 12px;">
+              <div style="text-align: center; padding: 12px; background: var(--bg-surface, #f8f9fa); border-radius: 8px;">
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-primary);">{{ rc.fraud_network_summary.total_same_cmo }}</div>
+                <div class="text-muted" style="font-size: 0.8rem;">CMO Sama</div>
+              </div>
+              <div style="text-align: center; padding: 12px; background: var(--bg-surface, #f8f9fa); border-radius: 8px;">
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-danger);">{{ rc.fraud_network_summary.total_shared_documents }}</div>
+                <div class="text-muted" style="font-size: 0.8rem;">Dokumen Sama</div>
+              </div>
+              <div style="text-align: center; padding: 12px; background: var(--bg-surface, #f8f9fa); border-radius: 8px;">
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-warning);">{{ rc.fraud_network_summary.total_similar_name }}</div>
+                <div class="text-muted" style="font-size: 0.8rem;">Nama Mirip</div>
+              </div>
+            </div>
+
+            <!-- Section 1: Shared Documents (paling kritis) -->
+            @if (rc.related_by_document.length > 0) {
+              <div style="margin-bottom: 16px;">
+                <h4 style="color: var(--color-danger); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                  <img src="/warning.svg" alt="Warning" style="width: 18px; height: 18px;" /> Dokumen Sama ({{ rc.related_by_document.length }})
+                </h4>
+                @for (c of rc.related_by_document; track c.customer_id) {
+                  <div class="network-customer-card" style="background: rgba(220, 53, 69, 0.04); border: 1px solid rgba(220, 53, 69, 0.2); padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer;" routerLink="/bm/fraud-result/{{ c.customer_id }}">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div>
+                        <strong>{{ c.customer_name }}</strong>
+                        <span class="text-muted" style="margin-left: 8px;">{{ c.no_contract }}</span>
+                      </div>
+                      <span class="badge"
+                        [class.badge--danger]="c.fraud_status === 'CONFIRMED_FRAUD' || c.fraud_status === 'FLAGGED'"
+                        [class.badge--success]="c.fraud_status === 'CLEAN'"
+                        [class.badge--neutral]="c.fraud_status === 'PENDING'">{{ c.fraud_status }}</span>
+                    </div>
+                    <div style="font-size: 0.85rem; margin-top: 6px; color: var(--color-danger);">
+                      ⚠️ Berbagi dokumen <strong>{{ c.shared_doc_type }}</strong>
+                      @if (c.cmo_name) { — CMO: {{ c.cmo_name }} ({{ c.cmo_nip }}) }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Section 2: Same CMO -->
+            @if (rc.related_by_cmo.length > 0) {
+              <div style="margin-bottom: 16px;">
+                <h4 style="color: var(--color-primary); margin-bottom: 10px;">📋 CMO Sama ({{ rc.related_by_cmo.length }})</h4>
+                @for (c of rc.related_by_cmo; track c.customer_id) {
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border: 1px solid var(--color-border, #eaeaea); border-radius: 8px; margin-bottom: 6px; cursor: pointer; transition: background 0.2s;" routerLink="/bm/fraud-result/{{ c.customer_id }}">
+                    <div>
+                      <strong>{{ c.customer_name }}</strong>
+                      <span class="text-muted" style="margin-left: 8px;">{{ c.no_contract }}</span>
+                      @if (c.score_percentage) {
+                        <span class="text-muted" style="margin-left: 8px; font-size: 0.85rem;">FRIDAYS: {{ c.score_percentage }}%</span>
+                      }
+                    </div>
+                    <span class="badge"
+                      [class.badge--danger]="c.fraud_status === 'CONFIRMED_FRAUD' || c.fraud_status === 'FLAGGED'"
+                      [class.badge--success]="c.fraud_status === 'CLEAN'"
+                      [class.badge--neutral]="c.fraud_status === 'PENDING'">{{ c.fraud_status }}</span>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Section 3: Similar Name -->
+            @if (rc.related_by_name.length > 0) {
+              <div>
+                <h4 style="color: var(--color-warning); margin-bottom: 10px;">👤 Nama Mirip ({{ rc.related_by_name.length }})</h4>
+                @for (c of rc.related_by_name; track c.customer_id) {
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border: 1px solid var(--color-border, #eaeaea); border-radius: 8px; margin-bottom: 6px; cursor: pointer; transition: background 0.2s;" routerLink="/bm/fraud-result/{{ c.customer_id }}">
+                    <div>
+                      <strong>{{ c.customer_name }}</strong>
+                      <span class="text-muted" style="margin-left: 8px;">{{ c.no_contract }}</span>
+                      @if (c.similarity_detail) {
+                        <span class="text-muted" style="margin-left: 8px; font-size: 0.85rem;">{{ c.similarity_detail }}</span>
+                      }
+                    </div>
+                    <span class="badge"
+                      [class.badge--danger]="c.fraud_status === 'CONFIRMED_FRAUD' || c.fraud_status === 'FLAGGED'"
+                      [class.badge--success]="c.fraud_status === 'CLEAN'"
+                      [class.badge--neutral]="c.fraud_status === 'PENDING'">{{ c.fraud_status }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
+
+    <!-- Breakdown Per Dokumen -->
     <div class="card animate-fade-in-up">
       <div class="card__header"><h2 class="card__title">Breakdown Per Dokumen</h2></div>
       <div class="card__body" style="padding: 0;">
-        @for (item of data.breakdown; track item.component) {
+        @for (item of documentBreakdown; track item.component) {
           <div class="breakdown-item">
             <div class="breakdown-item__header">
               <div class="breakdown-item__title">
-                <span class="breakdown-item__category badge" [class.badge--info]="item.category === 'DOCUMENT'" [class.badge--warning]="item.category === 'PROOF'">{{ item.category }}</span>
+                <span class="breakdown-item__category badge badge--info">DOCUMENT</span>
                 <strong>{{ item.component }}</strong>
               </div>
               <div class="breakdown-item__sim">
@@ -117,7 +268,7 @@
             @if (item.previous_customer) {
               <div class="previous-customer" style="margin-top: 12px; background: rgba(220, 53, 69, 0.05); border: 1px solid #dc3545; padding: 12px; border-radius: 6px;">
                 <h5 style="color: #dc3545; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                  <span style="font-size: 1.2rem;">⚠️</span> Identik dengan Konsumen Lain
+                  <img src="/warning.svg" alt="Warning" style="width: 18px; height: 18px;" /> Identik dengan Konsumen Lain
                 </h5>
                 <div class="grid grid--2" style="font-size: 0.9rem; gap: 8px;">
                   <div><span class="text-muted">Nama:</span> <strong style="color: var(--color-text);">{{ item.previous_customer.customer_name }}</strong></div>
@@ -125,6 +276,15 @@
                   <div><span class="text-muted">CMO:</span> <strong style="color: var(--color-text);">{{ item.previous_customer.cmo_name }} ({{ item.previous_customer.cmo_nip }})</strong></div>
                   <div><span class="text-muted">Status:</span> <span class="badge badge--warning">{{ item.previous_customer.fraud_status }}</span></div>
                 </div>
+              </div>
+            }
+
+            @if (getOcrExtractionNote(item); as note) {
+              <div class="ocr-extraction-note" style="margin-top: 12px; background: rgba(255, 193, 7, 0.08); border: 1px dashed var(--color-warning, #ffc107); padding: 12px; border-radius: 6px; color: var(--color-text);">
+                <h5 style="color: #d39e00; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; margin-top: 0;">
+                  <img src="/info.svg" alt="Info" style="width: 20px; height: 20px;" /> Catatan Ekstraksi &amp; Fraud Info
+                </h5>
+                <p style="font-size: 0.9rem; margin: 0; line-height: 1.5; text-align: justify;">{{ note }}</p>
               </div>
             }
 
@@ -179,13 +339,125 @@
                 } @else if (item.note.includes('DUPLIKAT')) {
                   <img src="/warning.svg" alt="Warning" class="note-icon">
                 }
-                <span>{{ item.note.replace('✅ ', '').replace('⚠️ ', '') }}</span>
+                <span>{{ item.note.replace('&#x2705; ', '').replace('&#x26A0;&#xFE0F; ', '') }}</span>
               </div>
             }
           </div>
         }
       </div>
     </div>
+
+    <!-- Proof Section: TEMPAT TINGGAL / USAHA (Combined) -->
+    @if (proofBreakdown.length > 0) {
+      <div class="card animate-fade-in-up" style="margin-top: 20px;">
+        <div class="card__header" style="display: flex; align-items: center; gap: 8px;">
+          <h2 class="card__title" style="margin: 0;">Foto Tempat Tinggal / Usaha</h2>
+          <span class="badge badge--warning" style="font-size: 0.75rem;">PROOF</span>
+        </div>
+        <div class="card__body" style="padding: 0;">
+          @for (item of proofBreakdown; track item.component) {
+            <div class="breakdown-item" style="border-left: 3px solid var(--color-warning, #ffc107);">
+              <div class="breakdown-item__header">
+                <div class="breakdown-item__sim">
+                  <span class="sim-value" [style.color]="item.similarity_percentage > 50 ? 'var(--color-danger)' : 'var(--color-success)'">{{ item.similarity_percentage | number:'1.1-1' }}%</span>
+                  <span class="sim-label">similarity</span>
+                </div>
+              </div>
+
+              @if (item.detection_status) {
+                <div class="breakdown-item__status">
+                  Status: <span class="badge" [class.badge--danger]="item.detection_status!.includes('DUPLICATE')" [class.badge--success]="item.detection_status === 'UNIQUE'">{{ item.detection_status }}</span>
+                </div>
+              }
+
+              <div class="progress-bar" [class.progress-bar--danger]="item.similarity_percentage > 50" [class.progress-bar--success]="item.similarity_percentage <= 50" style="margin: 8px 0;">
+                <div class="progress-bar__fill" [style.width.%]="item.similarity_percentage"></div>
+              </div>
+
+              @if (item.matched_fields && item.matched_fields.length > 0) {
+                <div class="matched-fields" style="background: var(--bg-surface, #f8f9fa); padding: 12px; border-radius: 6px; margin-top: 12px;">
+                  <h5 style="margin-bottom: 10px;">Parameter Hash yang Cocok:</h5>
+                  @for (f of item.matched_fields; track f.field_key) {
+                    <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border, #eaeaea);">
+                      <div class="matched-field" style="border: none; padding: 0; margin: 0; background: transparent;">
+                        <span class="matched-field__name"><strong>{{ f.field }}</strong></span>
+                        <span class="matched-field__preview" style="font-family: var(--font-mono); color: var(--color-primary);">{{ f.value_preview }}</span>
+                        <span class="badge" [class.badge--danger]="f.is_match" [class.badge--success]="!f.is_match">{{ f.similarity_percentage | number:'1.0-0' }}%</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (item.previous_customer) {
+                <div class="previous-customer" style="margin-top: 12px; background: rgba(220, 53, 69, 0.05); border: 1px solid #dc3545; padding: 12px; border-radius: 6px;">
+                  <h5 style="color: #dc3545; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                    <img src="/warning.svg" alt="Warning" style="width: 18px; height: 18px;" /> Identik dengan Konsumen Lain
+                  </h5>
+                  <div class="grid grid--2" style="font-size: 0.9rem; gap: 8px;">
+                    <div><span class="text-muted">Nama:</span> <strong style="color: var(--color-text);">{{ item.previous_customer.customer_name }}</strong></div>
+                    <div><span class="text-muted">No Kontrak:</span> <strong style="color: var(--color-text);">{{ item.previous_customer.no_contract }}</strong></div>
+                    <div><span class="text-muted">CMO:</span> <strong style="color: var(--color-text);">{{ item.previous_customer.cmo_name }} ({{ item.previous_customer.cmo_nip }})</strong></div>
+                    <div><span class="text-muted">Status:</span> <span class="badge badge--warning">{{ item.previous_customer.fraud_status }}</span></div>
+                  </div>
+                </div>
+              }
+
+              @if (item.top_similar_matches && item.top_similar_matches.length > 0) {
+                <div class="similar-matches" style="margin-top: 16px;">
+                  <h5 style="margin-bottom: 12px;">Sumber Mirip dari Internet (Google Lens):</h5>
+                  <div style="display: flex; flex-direction: column; gap: 12px;">
+                    @for (m of item.top_similar_matches; track m.rank) {
+                      <div class="similar-match" style="display: flex; gap: 12px; align-items: flex-start; background: var(--bg-surface, #f8f9fa); padding: 12px; border-radius: 8px; border: 1px solid var(--color-border, #eaeaea);">
+                        @if (m.thumbnail) {
+                          <img [src]="m.thumbnail" alt="Thumbnail" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; flex-shrink: 0; background: #ddd; border: 1px solid var(--color-border, #eaeaea);">
+                        } @else {
+                          <div style="width: 80px; height: 80px; border-radius: 4px; flex-shrink: 0; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; color: #ccc;">#{{ m.rank }}</div>
+                        }
+                        <div style="flex-grow: 1; overflow: hidden;">
+                          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                            <h6 style="margin: 0; font-size: 1rem; line-height: 1.4;">
+                              @if (m.link) {
+                                <a [href]="m.link" target="_blank" style="color: var(--color-primary); text-decoration: none;">{{ m.title || m.source }}</a>
+                              } @else {
+                                {{ m.title || m.source }}
+                              }
+                            </h6>
+                            <span class="badge badge--warning" style="white-space: nowrap;">{{ m.similarity_percentage | number:'1.1-1' }}%</span>
+                          </div>
+                          <div style="font-size: 0.85rem; color: var(--color-text-secondary, #6c757d); margin-top: 4px;">
+                            <strong>Sumber:</strong> {{ m.source }}
+                          </div>
+                          <div style="font-size: 0.9rem; margin-top: 6px;">
+                            {{ m.similarity_description }}
+                          </div>
+                          @if (m.link) {
+                            <div style="margin-top: 8px;">
+                              <a [href]="m.link" target="_blank" class="btn btn--sm btn--secondary" style="font-size: 0.75rem; padding: 4px 8px;">Buka Link Sumber &rarr;</a>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (item.note) {
+                <div class="breakdown-note-container">
+                  @if (item.note.includes('unik')) {
+                    <img src="/check-square.svg" alt="Check" class="note-icon">
+                  } @else if (item.note.includes('DUPLIKAT')) {
+                    <img src="/warning.svg" alt="Warning" class="note-icon">
+                  }
+                  <span>{{ item.note.replace('&#x2705; ', '').replace('&#x26A0;&#xFE0F; ', '') }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
 
     <!-- Review History -->
     @if (facade.reviewHistory().length > 0) {
